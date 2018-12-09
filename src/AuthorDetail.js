@@ -1,63 +1,31 @@
 import React, { Component } from "react";
-import axios from "axios";
+
+import { observer } from "mobx-react";
 
 // Components
 import BookTable from "./BookTable";
-import Loading from "./Loading";
 
-const instance = axios.create({
-  baseURL: "https://the-index-api.herokuapp.com"
-});
+import authorStore from "./stores/AuthorStore";
+import bookStore from "./stores/bookStore";
 
 class AuthorDetail extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      author: {},
-      loading: true
-    };
-  }
-
-  componentDidMount() {
-    this.getAuthor();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.match.params.authorID !== this.props.match.params.authorID) {
-      this.getAuthor();
-    }
-  }
-
-  getAuthor() {
-    const authorID = this.props.match.params.authorID;
-    this.setState({ loading: true });
-    instance
-      .get(`/api/authors/${authorID}`)
-      .then(res => res.data)
-      .then(author => this.setState({ author: author, loading: false }))
-      .catch(err => console.error(err));
-  }
-
   render() {
-    if (this.state.loading) {
-      return <Loading />;
-    } else {
-      const author = this.state.author;
-      return (
-        <div className="author">
-          <div>
-            <h3>{author.first_name + " " + author.last_name}</h3>
-            <img
-              src={author.imageUrl}
-              className="img-thumbnail img-fluid"
-              alt={author.first_name + " " + author.last_name}
-            />
-          </div>
-          <BookTable books={author.books} />
+    const author = authorStore.getAuthorById(this.props.match.params.authorID);
+    console.log(author.first_name);
+    return (
+      <div className="author">
+        <div>
+          <h3>{author.first_name + " " + author.last_name}</h3>
+          <img
+            src={author.imageUrl}
+            className="img-thumbnail img-fluid"
+            alt={author.first_name + " " + author.last_name}
+          />
         </div>
-      );
-    }
+        <BookTable books={bookStore.findBooksByAuthor(author)} />
+      </div>
+    );
   }
 }
 
-export default AuthorDetail;
+export default observer(AuthorDetail);

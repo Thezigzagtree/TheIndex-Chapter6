@@ -10,6 +10,7 @@ class AuthorStore {
     this.authors = [];
     this.loading = true;
     this.query = "";
+    this.currentAuthor = {};
   }
 
   fetchAuthors() {
